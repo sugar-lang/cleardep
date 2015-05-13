@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
-import java.util.List;
 
 import org.sugarj.common.path.AbsolutePath;
 import org.sugarj.common.path.Path;
@@ -166,12 +165,13 @@ public class FileCommands {
     return fileName(new AbsolutePath(uri.getPath()));
   }
   
-  public static String fileName(Path file_doof) {
-	  return fileName(toCygwinPath(file_doof.getAbsolutePath()));
+  public static String fileName(Path file) {
+	  return fileName(file.getAbsolutePath());
   }
   
   public static String fileName(String file) {
-    int index = file.lastIndexOf(File.separator);
+    file = toCygwinPath(file);
+    int index = file.lastIndexOf("/");
 
     if (index >= 0)
       file = file.substring(index + 1);
@@ -192,40 +192,6 @@ public class FileCommands {
       paths[i] = new RelativePath(p, files[i].getName());
     
     return paths;
-  }
-
-  /**
-   * Finds the given file in the given list of paths.
-   * 
-   * @param filename
-   *        relative filename.
-   * @param paths
-   *        list of possible paths to filename
-   * @return full file path to filename or null
-   */
-  @Deprecated
-  public static String findFile(String filename, List<String> paths) {
-    return findFile(filename, paths.toArray(new String[] {}));
-  }
-
-  /**
-   * Finds the given file in the given list of paths.
-   * 
-   * @param filename
-   *        relative filename.
-   * @param paths
-   *        list of possible paths to filename
-   * @return full file path to filename or null
-   */
-  @Deprecated
-  public static String findFile(String filename, String... paths) {
-    for (String path : paths) {
-      File f = new File(path + File.separator + filename);
-      if (f.exists())
-        return f.getAbsolutePath();
-    }
-
-    return null;
   }
 
   public static Path newTempDir() throws IOException {
@@ -405,7 +371,8 @@ public class FileCommands {
   }
   
   public static String dropFilename(String file) {
-	  int i = file.lastIndexOf(File.separator);
+    file = toCygwinPath(file);
+	  int i = file.lastIndexOf("/");
 	  if (i > 0) 
 		  return file.substring(0,i);
 	  
@@ -447,7 +414,7 @@ public class FileCommands {
   // cai 27.09.12
   // convert path-separator to that of the OS
   // so that strategoXT doesn't prepend ./ to C:/foo/bar/baz.
-  public static String nativePath(String path){
+  public static String nativePath(String path) {
       return path.replace('/', File.separatorChar);
   }
   
